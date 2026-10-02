@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MyNebula — Android Companion</title>
+  <style>
+    :root {
+      --bg: #1e1e1e;
+      --card-bg: #27272a;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #3584e4;
+      --accent-hover: #1c71d8;
+      --text: #ffffff;
+      --text-dim: rgba(255, 255, 255, 0.65);
+      --danger: #e01b24;
+      --success: #33d17a;
+      --nav-bg: #222225;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Poppins", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: var(--nav-bg);
+      border-bottom: 1px solid var(--card-border);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .badge {
+      width: 32px; height: 32px; border-radius: 999px;
+      background: linear-gradient(135deg, #3584e4, #62a0ea);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(53, 132, 228, 0.35);
+    }
+    .badge svg { width: 18px; height: 18px; fill: #fff; }
+    h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+    .status-badge {
+      font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08); color: var(--text-dim);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .status-badge.online { background: rgba(51, 209, 122, 0.15); color: var(--success); }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    main { flex: 1; padding: 18px; max-width: 580px; margin: 0 auto; width: 100%; padding-bottom: 90px; }
+    .tab-view { display: none; }
+    .tab-view.active { display: block; animation: fadeIn 0.18s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .card-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .card-sub { font-size: 13px; color: var(--text-dim); line-height: 1.4; margin-bottom: 16px; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 12px; font-weight: 500; color: var(--text-dim); margin-bottom: 6px; }
+    input[type="text"] {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+    input[type="text"]:focus { border-color: var(--accent); }
+    .btn {
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.05s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { background: rgba(255, 255, 255, 0.08); color: #fff; }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.12); }
+    .btn-danger { background: rgba(224, 27, 36, 0.18); color: #ff6b6b; border: 1px solid rgba(224, 27, 36, 0.3); margin-top: 14px; }
+    .btn-danger:hover { background: var(--danger); color: #fff; }
+    .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 13px; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--text-dim); }
+    .info-val { font-weight: 500; }
+    .drop-box {
+      border: 2px dashed rgba(255, 255, 255, 0.22);
+      border-radius: 18px;
+      padding: 30px 16px;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.02);
+      transition: all 0.2s;
+      margin-bottom: 14px;
+    }
+    .drop-box:hover { border-color: var(--accent); background: rgba(53, 132, 228, 0.08); }
+    .drop-icon svg { width: 44px; height: 44px; fill: var(--accent); margin-bottom: 10px; }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 10px;
+    }
+    .gallery-thumb {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--card-border);
+      position: relative;
+      cursor: pointer;
+    }
+    .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .gallery-caption {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.85));
+      font-size: 10px; padding: 4px 6px; color: #fff;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--nav-bg);
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+      z-index: 50;
+    }
+    .nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 6px;
+      border-radius: 10px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-btn svg { width: 22px; height: 22px; fill: currentColor; }
+    .nav-btn.active { color: var(--accent); }
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 95%; max-height: 75vh; border-radius: 12px; object-fit: contain; }
+    .lightbox-actions { display: flex; gap: 12px; margin-top: 14px; }
+    .toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+      background: rgba(30, 30, 34, 0.95); border: 1px solid var(--card-border);
+      padding: 10px 18px; border-radius: 999px; font-size: 13px; font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5); pointer-events: none; opacity: 0;
+      transition: opacity 0.2s; z-index: 150;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="badge">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+      </div>
+      <h1>MyNebula</h1>
+    </div>
+    <div id="status-badge" class="status-badge">
+      <span class="dot"></span>
+      <span id="status-text">Searching...</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- TAB 1: DEVICE PAIRING -->
+    <div id="tab-device" class="tab-view active">
+
+      <!-- Discovered PC Card (shown when un-paired and a PC is detected on Wi-Fi) -->
+      <div id="discovered-card" class="card" style="display:none;border-color:rgba(53, 132, 228, 0.4);background:rgba(53, 132, 228, 0.06);">
+        <div class="card-title">
+          <svg style="width:22px;height:22px;fill:var(--accent)" viewBox="0 0 24 24"><path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
+          NebulaOS Device Found
+        </div>
+        <p class="card-sub">Your NebulaOS device was automatically discovered on your local network. Tap below to pair permanently.</p>
+        <div class="info-row">
+          <span class="info-label">Device:</span>
+          <span id="disc-laptop-name" class="info-val" style="font-weight:600;color:#fff;">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">IP Address:</span>
+          <span id="disc-laptop-ip" class="info-val">—</span>
+        </div>
+        <button class="btn btn-primary" id="btn-quick-pair" style="margin-top:14px;background:linear-gradient(135deg,#3584e4,#1c71d8);" onclick="pairWithDiscovered()">
+          Connect to Device
+        </button>
+      </div>
+
+      <!-- Searching / Manual Card (shown when un-paired and looking for PC) -->
+      <div id="unpaired-card" class="card">
+        <div class="card-title">
+          <svg style="width:20px;height:20px;fill:var(--accent)" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>
+          Searching for NebulaOS Device
+        </div>
+        <p class="card-sub" id="search-desc">Make sure your NebulaOS device and this phone are on the same Wi-Fi network. Discovery is automatic.</p>
+
+        <div style="display:flex;align-items:center;gap:10px;margin:16px 0 12px;">
+          <hr style="flex:1;border:none;border-top:1px solid var(--card-border);">
+          <span style="font-size:11px;color:var(--text-dim);text-transform:uppercase;">or connect by IP address</span>
+          <hr style="flex:1;border:none;border-top:1px solid var(--card-border);">
+        </div>
+
+        <div class="form-group">
+          <label>Device IP Address</label>
+          <input type="text" id="laptop-host" placeholder="192.168.1.xxx">
+        </div>
+        <div class="form-group">
+          <label>Your Phone Name</label>
+          <input type="text" id="device-name" placeholder="Android Phone">
+        </div>
+        <button class="btn btn-primary" onclick="pairWithLaptop()">Connect to Device</button>
+      </div>
+
+      <!-- Paired Card -->
+      <div id="paired-card" class="card" style="display:none">
+        <div class="card-title">
+          <svg style="width:20px;height:20px;fill:var(--success)" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          Connected to NebulaOS Device
+        </div>
+        <p class="card-sub">Paired permanently in the background. Calls, PetalDrop, and contact sync remain active even when the app is closed.</p>
+        <div class="info-row">
+          <span class="info-label">Device:</span>
+          <span id="laptop-name" class="info-val">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">IP Address:</span>
+          <span id="laptop-ip" class="info-val">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Cloud Photos:</span>
+          <span id="laptop-pics-count" class="info-val">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Background Status:</span>
+          <span class="info-val" style="color:var(--success);font-weight:600;">Active &amp; Ready</span>
+        </div>
+        <button id="btn-screen-mirror" class="btn btn-primary" style="margin-top:14px;background:linear-gradient(135deg,#9141ac,#613583);" onclick="toggleScreenMirror()">
+          <span style="display:flex;align-items:center;justify-content:center;gap:8px;">
+            <svg style="width:18px;height:18px;fill:currentColor;" viewBox="0 0 24 24"><path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
+            <span id="screen-mirror-btn-text">Start Screen Mirroring</span>
+          </span>
+        </button>
+        <button class="btn btn-primary" style="margin-top:10px;background:linear-gradient(135deg,#3584e4,#1c71d8);" onclick="triggerSyncContacts()">Sync Phone Contacts</button>
+        <button class="btn btn-danger" onclick="unpairFromLaptop()">Unpair Device</button>
+      </div>
+    </div>
+
+    <!-- TAB 2: PETALDROP -->
+    <div id="tab-drop" class="tab-view">
+      <div class="card">
+        <div class="card-title">
+          <svg style="width:20px;height:20px;fill:var(--accent)" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          PetalDrop — File Transfer
+        </div>
+        <p class="card-sub">Instantly send photos, videos, and files from your phone directly to your NebulaOS device.</p>
+
+        <div class="drop-box" onclick="document.getElementById('file-input').click()">
+          <div class="drop-icon">
+            <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+          </div>
+          <div style="font-weight:600;font-size:15px;margin-bottom:4px;">Tap to select file</div>
+          <div style="font-size:12px;color:var(--text-dim);">Photo, Video, Document, APK</div>
+        </div>
+        <input type="file" id="file-input" style="display:none;" onchange="handleFileSelected(event)">
+
+        <div id="selected-file-info" style="display:none;margin-bottom:14px;" class="info-row">
+          <span id="selected-file-name" class="info-val" style="word-break:break-all;">filename.jpg</span>
+          <span id="selected-file-size" class="info-label">0 MB</span>
+        </div>
+
+        <button id="send-drop-btn" class="btn btn-primary" style="display:none;" onclick="sendSelectedFile()">
+          Send File to NebulaOS
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB 3: CLOUD GALLERY -->
+    <div id="tab-gallery" class="tab-view">
+      <div class="card" style="padding:14px;">
+        <div class="card-title" style="margin-bottom:12px;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <svg style="width:20px;height:20px;fill:var(--accent)" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+            Cloud Photos
+          </div>
+          <button class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:12px;" onclick="fetchGallery()">Refresh</button>
+        </div>
+        <p class="card-sub" style="margin-bottom:12px;">Photos in your NebulaOS Pictures folder, synced wirelessly.</p>
+
+        <div id="gallery-container" class="gallery-grid">
+          <div style="grid-column:1/-1;text-align:center;padding:30px 0;color:var(--text-dim);font-size:13px;">
+            Connect to your NebulaOS device to view photos.
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <nav>
+    <button class="nav-btn active" onclick="switchTab('tab-device', this)">
+      <svg viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+      Connection
+    </button>
+    <button class="nav-btn" onclick="switchTab('tab-drop', this)">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      PetalDrop
+    </button>
+    <button class="nav-btn" onclick="switchTab('tab-gallery', this)">
+      <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+      Cloud
+    </button>
+  </nav>
+
+  <!-- Lightbox Modal -->
+  <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
+    <img id="lightbox-img" src="" alt="Preview">
+    <div class="lightbox-actions" onclick="event.stopPropagation()">
+      <a id="lightbox-download" class="btn btn-primary" style="padding:10px 18px;" download>Download Offline</a>
+      <button class="btn btn-secondary" style="padding:10px 18px;" onclick="closeLightbox()">Close</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    let currentFile = null;
+    let discoveredPeer = null;
+    let baseApiUrl = localStorage.getItem("mynebula_laptop_host") || window.location.origin;
+    if (baseApiUrl.startsWith("file://")) {
+      baseApiUrl = "http://" + (localStorage.getItem("mynebula_laptop_ip") || "192.168.1.100") + ":53317";
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.innerText = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2800);
+    }
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll(".tab-view").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".nav-btn").forEach(el => el.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+      if (btn) btn.classList.add("active");
+      if (tabId === "tab-gallery") fetchGallery();
+    }
+
+    function getDeviceId() {
+      if (window.AndroidBridge && typeof window.AndroidBridge.getDeviceId === "function") {
+        try {
+          const bid = window.AndroidBridge.getDeviceId();
+          if (bid) return bid;
+        } catch (e) {}
+      }
+      let id = localStorage.getItem("mynebula_device_id");
+      if (!id) {
+        id = "android-" + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem("mynebula_device_id", id);
+      }
+      return id;
+    }
+
+    function onPeerDiscovered(peer) {
+      if (peer && peer.ip) {
+        discoveredPeer = peer;
+        baseApiUrl = `http://${peer.ip}:${peer.port || 53317}`;
+        localStorage.setItem("mynebula_laptop_ip", peer.ip);
+        localStorage.setItem("mynebula_laptop_host", baseApiUrl);
+
+        // Check if already paired
+        const isPaired = localStorage.getItem("mynebula_is_paired") === "true";
+        if (isPaired) {
+          checkStatus();
+        } else {
+          // Show discovered card
+          const discCard = document.getElementById("discovered-card");
+          if (discCard) {
+            discCard.style.display = "block";
+            document.getElementById("disc-laptop-name").innerText = peer.device_name || "NebulaOS PC";
+            document.getElementById("disc-laptop-ip").innerText = peer.ip;
+            document.getElementById("btn-quick-pair").innerText = `Connect to ${peer.device_name || "NebulaOS PC"}`;
+          }
+          const hostInput = document.getElementById("laptop-host");
+          if (hostInput && !hostInput.value) hostInput.value = peer.ip;
+        }
+      }
+    }
+
+    async function checkStatus() {
+      // Restore native bridge pairing state if available
+      if (window.AndroidBridge && typeof window.AndroidBridge.getSavedPairingState === "function") {
+        try {
+          const raw = window.AndroidBridge.getSavedPairingState();
+          const p = JSON.parse(raw);
+          if (p.is_paired) {
+            localStorage.setItem("mynebula_is_paired", "true");
+            if (p.secret) localStorage.setItem("mynebula_secret", p.secret);
+            if (p.host_name) localStorage.setItem("mynebula_laptop_name", p.host_name);
+            if (p.host_ip) {
+              localStorage.setItem("mynebula_laptop_ip", p.host_ip);
+              baseApiUrl = `http://${p.host_ip}:53317`;
+              localStorage.setItem("mynebula_laptop_host", baseApiUrl);
+            }
+          }
+        } catch (e) {}
+      }
+
+      try {
+        const hostInput = document.getElementById("laptop-host");
+        if (hostInput && hostInput.value.trim()) {
+          baseApiUrl = "http://" + hostInput.value.trim() + ":53317";
+        }
+        const res = await fetch(`${baseApiUrl}/api/status`, { cache: "no-store" });
+        const data = await res.json();
+        const badge = document.getElementById("status-badge");
+        const statusText = document.getElementById("status-text");
+
+        const secret = localStorage.getItem("mynebula_secret");
+        const isPairedLocal = localStorage.getItem("mynebula_is_paired") === "true";
+        const myId = getDeviceId();
+
+        if (isPairedLocal || (data.is_paired && (data.paired_device_id === myId || secret))) {
+          badge.classList.add("online");
+          statusText.innerText = "Connected";
+          document.getElementById("unpaired-card").style.display = "none";
+          document.getElementById("discovered-card").style.display = "none";
+          document.getElementById("paired-card").style.display = "block";
+          document.getElementById("laptop-name").innerText = data.device_name || localStorage.getItem("mynebula_laptop_name") || "NebulaOS Device";
+          document.getElementById("laptop-ip").innerText = data.local_ip || baseApiUrl;
+          document.getElementById("laptop-pics-count").innerText = (data.pictures_count || 0) + " photos";
+        } else {
+          badge.classList.remove("online");
+          statusText.innerText = "Searching";
+          document.getElementById("paired-card").style.display = "none";
+          if (discoveredPeer) {
+            document.getElementById("discovered-card").style.display = "block";
+            document.getElementById("unpaired-card").style.display = "block";
+          } else {
+            document.getElementById("discovered-card").style.display = "none";
+            document.getElementById("unpaired-card").style.display = "block";
+          }
+        }
+      } catch (e) {
+        const isPairedLocal = localStorage.getItem("mynebula_is_paired") === "true";
+        if (isPairedLocal) {
+          document.getElementById("status-text").innerText = "Reconnecting...";
+          document.getElementById("unpaired-card").style.display = "none";
+          document.getElementById("discovered-card").style.display = "none";
+          document.getElementById("paired-card").style.display = "block";
+          document.getElementById("laptop-name").innerText = localStorage.getItem("mynebula_laptop_name") || "NebulaOS Device";
+          document.getElementById("laptop-ip").innerText = localStorage.getItem("mynebula_laptop_ip") || "Background Sync Active";
+        } else {
+          document.getElementById("status-text").innerText = "Searching";
+        }
+      }
+    }
+
+    async function pairWithDiscovered() {
+      if (!discoveredPeer) return;
+      const hostName = discoveredPeer.device_name || "NebulaOS Device";
+      const devName = (window.AndroidBridge && window.AndroidBridge.getDeviceModel)
+        ? window.AndroidBridge.getDeviceModel()
+        : (document.getElementById("device-name").value.trim() || "Android Phone");
+      const token = discoveredPeer.pairing_token || "";
+      await executePairing(discoveredPeer.ip, token, devName, hostName);
+    }
+
+    async function pairWithLaptop() {
+      let host = document.getElementById("laptop-host").value.trim();
+      if (!host && discoveredPeer) host = discoveredPeer.ip;
+      if (!host) {
+        showToast("Enter device IP address");
+        return;
+      }
+      let devName = document.getElementById("device-name").value.trim();
+      if (!devName && window.AndroidBridge && window.AndroidBridge.getDeviceModel) {
+        devName = window.AndroidBridge.getDeviceModel();
+      }
+      if (!devName) devName = "Android Phone";
+
+      const token = (discoveredPeer && discoveredPeer.pairing_token) ? discoveredPeer.pairing_token : "";
+      await executePairing(host, token, devName, "NebulaOS Device");
+    }
+
+    async function executePairing(ip, token, devName, hostName) {
+      baseApiUrl = `http://${ip}:53317`;
+      localStorage.setItem("mynebula_laptop_ip", ip);
+      localStorage.setItem("mynebula_laptop_host", baseApiUrl);
+      showToast("Connecting to " + hostName + "...");
+
+      try {
+        const myId = getDeviceId();
+        const res = await fetch(`${baseApiUrl}/api/pair`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token: token,
+            device_name: devName,
+            device_id: myId
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem("mynebula_is_paired", "true");
+          localStorage.setItem("mynebula_secret", data.phone_secret);
+          localStorage.setItem("mynebula_device_name", devName);
+          localStorage.setItem("mynebula_laptop_name", hostName);
+
+          if (window.AndroidBridge && window.AndroidBridge.savePairingState) {
+            window.AndroidBridge.savePairingState(hostName, ip, data.phone_secret);
+          }
+
+          showToast("Connected permanently!");
+          checkStatus();
+        } else {
+          showToast("Pairing failed: " + (data.error || "Connection refused"));
+        }
+      } catch (e) {
+        showToast("Could not reach device at " + ip);
+      }
+    }
+
+    async function unpairFromLaptop() {
+      if (!confirm("Are you sure you want to unpair from this NebulaOS device?")) return;
+      const secret = localStorage.getItem("mynebula_secret") || "";
+      try {
+        await fetch(`${baseApiUrl}/api/unpair`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone_secret: secret })
+        });
+      } catch (e) {}
+
+      localStorage.removeItem("mynebula_is_paired");
+      localStorage.removeItem("mynebula_secret");
+      localStorage.removeItem("mynebula_laptop_name");
+
+      if (window.AndroidBridge && window.AndroidBridge.clearPairingState) {
+        window.AndroidBridge.clearPairingState();
+      }
+
+      showToast("Device unpaired");
+      checkStatus();
+    }
+
+    function triggerSyncContacts() {
+      if (window.AndroidBridge && window.AndroidBridge.syncContacts) {
+        window.AndroidBridge.syncContacts();
+      } else {
+        showToast("Syncing contacts with NebulaOS...");
+      }
+    }
+
+    let isScreenMirroringActive = false;
+
+    function toggleScreenMirror() {
+      if (!window.AndroidBridge) {
+        showToast("Screen mirroring requires Android app");
+        return;
+      }
+
+      if (isScreenMirroringActive || (window.AndroidBridge.isScreenMirroring && window.AndroidBridge.isScreenMirroring())) {
+        if (window.AndroidBridge.stopScreenMirror) {
+          window.AndroidBridge.stopScreenMirror();
+        }
+      } else {
+        if (window.AndroidBridge.startScreenMirror) {
+          window.AndroidBridge.startScreenMirror();
+        }
+      }
+    }
+
+    function onScreenMirrorChanged(active) {
+      isScreenMirroringActive = active;
+      const btn = document.getElementById("btn-screen-mirror");
+      const txt = document.getElementById("screen-mirror-btn-text");
+      if (btn && txt) {
+        if (active) {
+          txt.innerText = "Stop Screen Mirroring";
+          btn.style.background = "linear-gradient(135deg,#c01c28,#a51d2d)";
+        } else {
+          txt.innerText = "Start Screen Mirroring";
+          btn.style.background = "linear-gradient(135deg,#9141ac,#613583)";
+        }
+      }
+    }
+
+    function handleFileSelected(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      currentFile = file;
+      document.getElementById("selected-file-name").innerText = file.name;
+      document.getElementById("selected-file-size").innerText = (file.size / 1024 / 1024).toFixed(2) + " MB";
+      document.getElementById("selected-file-info").style.display = "flex";
+      document.getElementById("send-drop-btn").style.display = "block";
+    }
+
+    async function sendSelectedFile() {
+      if (!currentFile) return;
+      const btn = document.getElementById("send-drop-btn");
+      btn.innerText = "Sending...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`${baseApiUrl}/api/drop/receive`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/octet-stream",
+            "X-File-Name": currentFile.name
+          },
+          body: currentFile
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast("Sent successfully via PetalDrop!");
+          document.getElementById("selected-file-info").style.display = "none";
+          btn.style.display = "none";
+          document.getElementById("file-input").value = "";
+          currentFile = null;
+        } else {
+          showToast("Failed to send file");
+        }
+      } catch (e) {
+        showToast("Error during PetalDrop transfer");
+      } finally {
+        btn.innerText = "Send File to NebulaOS";
+        btn.disabled = false;
+      }
+    }
+
+    async function fetchGallery() {
+      const container = document.getElementById("gallery-container");
+      try {
+        const res = await fetch(`${baseApiUrl}/api/gallery`);
+        const data = await res.json();
+        if (data.pictures && data.pictures.length > 0) {
+          container.innerHTML = "";
+          data.pictures.forEach(pic => {
+            const div = document.createElement("div");
+            div.className = "gallery-thumb";
+            const fileUrl = `${baseApiUrl}/api/gallery/file?id=${encodeURIComponent(pic.id)}`;
+            div.onclick = () => openLightbox(fileUrl, pic.filename);
+            div.innerHTML = `
+              <img src="${fileUrl}" loading="lazy" alt="${pic.filename}">
+              <div class="gallery-caption">${pic.filename}</div>
+            `;
+            container.appendChild(div);
+          });
+        } else {
+          container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px 0;color:var(--text-dim);font-size:13px;">No photos found in Pictures folder.</div>`;
+        }
+      } catch (e) {
+        container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px 0;color:var(--text-dim);font-size:13px;">Offline — Cannot connect to device gallery.</div>`;
+      }
+    }
+
+    function openLightbox(url, name) {
+      document.getElementById("lightbox-img").src = url;
+      const dl = document.getElementById("lightbox-download");
+      dl.href = url;
+      dl.download = name;
+      document.getElementById("lightbox").classList.add("open");
+    }
+
+    function closeLightbox(e) {
+      if (!e || e.target.id === "lightbox") {
+        document.getElementById("lightbox").classList.remove("open");
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedName = localStorage.getItem("mynebula_device_name");
+      if (savedName) document.getElementById("device-name").value = savedName;
+      checkStatus();
+      setInterval(checkStatus, 4000);
+    });
+  </script>
+</body>
+</html>

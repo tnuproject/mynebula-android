@@ -1,0 +1,11 @@
+<resources>
+    <color name="adwaita_dark_bg">#1e1e1e</color>
+    <color name="adwaita_header_bg">#242426</color>
+    <color name="adwaita_card_bg">#28282c</color>
+    <color name="adwaita_blue">#3584e4</color>
+    <color name="adwaita_blue_dark">#1c71d8</color>
+    <color name="adwaita_text">#ffffff</color>
+    <color name="adwaita_text_dim">#a0a0a0</color>
+    <color name="adwaita_danger">#e01b24</color>
+    <color name="adwaita_success">#33d17a</color>
+</resources>

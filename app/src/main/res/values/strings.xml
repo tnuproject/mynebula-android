@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">MyNebula</string>
+    <string name="pairing_title">Pair Device</string>
+    <string name="petaldrop_title">PetalDrop</string>
+    <string name="cloud_title">Cloud Gallery</string>
+</resources>
