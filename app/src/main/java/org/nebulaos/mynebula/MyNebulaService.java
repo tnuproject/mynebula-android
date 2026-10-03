@@ -19,7 +19,6 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
-import android.provider.ContactsContract;
 import android.telecom.TelecomManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -31,6 +30,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.DatagramPacket;
@@ -50,6 +51,10 @@ public class MyNebulaService extends Service {
     public static final int HTTP_PUSH_PORT = 53319;
     public static final int UDP_BEACON_PORT = 53318;
 
+    public static final String ACTION_ALLOW_MIRROR = "org.nebulaos.mynebula.ACTION_ALLOW_MIRROR";
+    public static final String ACTION_DENY_MIRROR = "org.nebulaos.mynebula.ACTION_DENY_MIRROR";
+    public static final int MIRROR_PROMPT_NOTIF_ID = 2005;
+
     private boolean isRunning = false;
     private Thread beaconThread;
     private Thread pollThread;
@@ -57,7 +62,6 @@ public class MyNebulaService extends Service {
     private ServerSocket pushServerSocket;
     private PowerManager.WakeLock wakeLock;
     private WifiManager.WifiLock wifiLock;
-    private long lastContactsSyncTime = 0;
 
     @Override
     public void onCreate() {
@@ -195,13 +199,6 @@ public class MyNebulaService extends Service {
                             // Update IP if host name matches or we have only one paired laptop
                             prefs.edit().putString("last_seen_ip", hostIp).commit();
                             updateNotification();
-
-                            // Auto-sync contacts periodically in background
-                            long now = System.currentTimeMillis();
-                            if (now - lastContactsSyncTime > 1800000) { // every 30 mins
-                                lastContactsSyncTime = now;
-                                syncContacts(MyNebulaService.this, hostIp);
-                            }
                         } else {
                             // Remember discovered host IP
                             prefs.edit().putString("last_seen_ip", hostIp).commit();
@@ -284,48 +281,229 @@ public class MyNebulaService extends Service {
 
     private void handleHttpClient(Socket client) {
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            String firstLine = in.readLine();
-            if (firstLine != null) {
-                int contentLength = 0;
-                String headerLine;
-                while ((headerLine = in.readLine()) != null && !headerLine.isEmpty()) {
-                    if (headerLine.toLowerCase().startsWith("content-length:")) {
-                        contentLength = Integer.parseInt(headerLine.substring(15).trim());
-                    }
+            InputStream in = client.getInputStream();
+            OutputStream out = client.getOutputStream();
+
+            ByteArrayOutputStream headerBuffer = new ByteArrayOutputStream();
+            int b;
+            int consecutiveNewlines = 0;
+            while ((b = in.read()) != -1) {
+                headerBuffer.write(b);
+                if (b == '\n') {
+                    consecutiveNewlines++;
+                    if (consecutiveNewlines == 2) break;
+                } else if (b != '\r') {
+                    consecutiveNewlines = 0;
+                }
+            }
+
+            String headerText = headerBuffer.toString(StandardCharsets.UTF_8.name());
+            String[] lines = headerText.split("\r\n");
+            if (lines.length == 0 || lines[0].isEmpty()) {
+                client.close();
+                return;
+            }
+
+            String firstLine = lines[0];
+            int contentLength = 0;
+            String xFileName = "";
+            String xFileHash = "";
+            long xFileMtime = 0;
+
+            for (String h : lines) {
+                String hl = h.toLowerCase();
+                if (hl.startsWith("content-length:")) {
+                    try { contentLength = Integer.parseInt(h.substring(15).trim()); } catch (Exception ignored) {}
+                } else if (hl.startsWith("x-file-name:")) {
+                    xFileName = h.substring(12).trim();
+                } else if (hl.startsWith("x-file-hash:")) {
+                    xFileHash = h.substring(12).trim();
+                } else if (hl.startsWith("x-file-mtime:")) {
+                    try { xFileMtime = Long.parseLong(h.substring(13).trim()); } catch (Exception ignored) {}
+                }
+            }
+
+            byte[] bodyBytes = new byte[contentLength];
+            if (contentLength > 0) {
+                int totalRead = 0;
+                while (totalRead < contentLength) {
+                    int r = in.read(bodyBytes, totalRead, contentLength - totalRead);
+                    if (r == -1) break;
+                    totalRead += r;
+                }
+            }
+
+            if (firstLine.contains("/gallery/manifest")) {
+                JSONObject manifest = GallerySyncManager.getPhoneManifest(getApplicationContext());
+                byte[] respBytes = manifest.toString().getBytes(StandardCharsets.UTF_8);
+                out.write(("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: " + respBytes.length + "\r\nAccess-Control-Allow-Origin: *\r\n\r\n").getBytes());
+                out.write(respBytes);
+                out.flush();
+
+            } else if (firstLine.contains("/gallery/download")) {
+                long photoId = -1;
+                int qIdx = firstLine.indexOf("id=");
+                if (qIdx != -1) {
+                    int endIdx = firstLine.indexOf(' ', qIdx);
+                    if (endIdx == -1) endIdx = firstLine.length();
+                    String idStr = firstLine.substring(qIdx + 3, endIdx).trim();
+                    try { photoId = Long.parseLong(idStr); } catch (Exception ignored) {}
                 }
 
-                StringBuilder body = new StringBuilder();
-                if (contentLength > 0) {
-                    char[] buf = new char[contentLength];
-                    int read = in.read(buf, 0, contentLength);
-                    if (read > 0) {
-                        body.append(buf, 0, read);
+                InputStream photoStream = photoId > 0 ? GallerySyncManager.openImageStream(getApplicationContext(), photoId) : null;
+                if (photoStream != null) {
+                    ByteArrayOutputStream pBuf = new ByteArrayOutputStream();
+                    byte[] cBuf = new byte[16384];
+                    int cRead;
+                    while ((cRead = photoStream.read(cBuf)) != -1) {
+                        pBuf.write(cBuf, 0, cRead);
                     }
+                    photoStream.close();
+                    byte[] pBytes = pBuf.toByteArray();
+
+                    out.write(("HTTP/1.1 200 OK\r\nContent-Type: image/jpeg\r\nContent-Length: " + pBytes.length + "\r\nAccess-Control-Allow-Origin: *\r\n\r\n").getBytes());
+                    out.write(pBytes);
+                    out.flush();
+                } else {
+                    out.write("HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n".getBytes());
+                    out.flush();
                 }
 
-                if (firstLine.contains("/dial")) {
-                    String num = "";
-                    try {
-                        JSONObject json = new JSONObject(body.toString());
-                        num = json.optString("number", "");
-                    } catch (Exception ignored) {}
-                    if (!num.isEmpty()) {
-                        executeDial(num);
-                    }
-                } else if (firstLine.contains("/accept")) {
-                    executeAccept();
-                } else if (firstLine.contains("/hangup")) {
-                    executeHangup();
-                }
+            } else if (firstLine.contains("/gallery/upload")) {
+                boolean saved = GallerySyncManager.saveImage(getApplicationContext(), xFileName, xFileHash, xFileMtime, bodyBytes);
+                JSONObject res = new JSONObject();
+                res.put("success", saved);
+                byte[] rBytes = res.toString().getBytes(StandardCharsets.UTF_8);
+                out.write(("HTTP/1.1 " + (saved ? "200 OK" : "400 Bad Request") + "\r\nContent-Type: application/json\r\nContent-Length: " + rBytes.length + "\r\n\r\n").getBytes());
+                out.write(rBytes);
+                out.flush();
 
-                OutputStream out = client.getOutputStream();
+            } else if (firstLine.contains("/gallery/delete")) {
+                String bodyStr = new String(bodyBytes, StandardCharsets.UTF_8);
+                long delId = -1;
+                String delName = "";
+                String delHash = "";
+                try {
+                    JSONObject delObj = new JSONObject(bodyStr);
+                    delId = delObj.optLong("id", -1);
+                    delName = delObj.optString("name", "");
+                    delHash = delObj.optString("hash", "");
+                } catch (Exception ignored) {}
+                boolean deleted = GallerySyncManager.deleteImage(getApplicationContext(), delId, delName, delHash);
+                JSONObject res = new JSONObject();
+                res.put("success", deleted);
+                byte[] rBytes = res.toString().getBytes(StandardCharsets.UTF_8);
+                out.write(("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: " + rBytes.length + "\r\n\r\n").getBytes());
+                out.write(rBytes);
+                out.flush();
+
+            } else if (firstLine.contains("/mirror_request")) {
+                handleMirrorRequest();
+                out.write("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 16\r\n\r\n{\"success\":true}".getBytes());
+                out.flush();
+
+            } else if (firstLine.contains("/mirror_stop")) {
+                handleMirrorStop();
+                out.write("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 16\r\n\r\n{\"success\":true}".getBytes());
+                out.flush();
+
+            } else if (firstLine.contains("/dial")) {
+                String num = "";
+                try {
+                    JSONObject json = new JSONObject(new String(bodyBytes, StandardCharsets.UTF_8));
+                    num = json.optString("number", "");
+                } catch (Exception ignored) {}
+                if (!num.isEmpty()) {
+                    executeDial(num);
+                }
+                out.write("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 16\r\n\r\n{\"success\":true}".getBytes());
+                out.flush();
+
+            } else if (firstLine.contains("/accept")) {
+                executeAccept();
+                out.write("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 16\r\n\r\n{\"success\":true}".getBytes());
+                out.flush();
+
+            } else if (firstLine.contains("/hangup")) {
+                executeHangup();
+                out.write("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 16\r\n\r\n{\"success\":true}".getBytes());
+                out.flush();
+
+            } else {
                 out.write("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 16\r\n\r\n{\"success\":true}".getBytes());
                 out.flush();
             }
+
             client.close();
         } catch (Exception ignored) {
         }
+    }
+
+    private void handleMirrorRequest() {
+        try {
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (manager == null) return;
+
+            Intent allowIntent = new Intent(this, MainActivity.class);
+            allowIntent.setAction(ACTION_ALLOW_MIRROR);
+            allowIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            PendingIntent allowPending = PendingIntent.getActivity(
+                    this, 101, allowIntent,
+                    PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+            );
+
+            Intent denyIntent = new Intent(this, MyNebulaService.class);
+            denyIntent.setAction(ACTION_DENY_MIRROR);
+            PendingIntent denyPending = PendingIntent.getService(
+                    this, 102, denyIntent,
+                    PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+            );
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setContentTitle("Screen Sharing Request")
+                    .setContentText("NebulaOS PC is requesting to mirror your phone screen.")
+                    .setSmallIcon(android.R.drawable.ic_menu_slideshow)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setCategory(NotificationCompat.CATEGORY_CALL)
+                    .setAutoCancel(true)
+                    .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Deny", denyPending)
+                    .addAction(android.R.drawable.ic_media_play, "Allow", allowPending);
+
+            manager.notify(MIRROR_PROMPT_NOTIF_ID, builder.build());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleMirrorStop() {
+        try {
+            Intent stopIntent = new Intent(this, ScreenMirrorService.class);
+            stopIntent.setAction(ScreenMirrorService.ACTION_STOP);
+            startService(stopIntent);
+        } catch (Exception ignored) {}
+    }
+
+    private void sendMirrorDeniedToPc() {
+        new Thread(() -> {
+            try {
+                SharedPreferences prefs = getSharedPreferences("mynebula_prefs", MODE_PRIVATE);
+                String hostIp = prefs.getString("last_seen_ip", null);
+                if (hostIp != null && !hostIp.isEmpty()) {
+                    URL url = new URL("http://" + hostIp + ":53317/api/mirror/response");
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setDoOutput(true);
+                    conn.setConnectTimeout(3000);
+                    conn.setRequestProperty("Content-Type", "application/json");
+                    byte[] data = "{\"allowed\":false,\"reason\":\"Declined on phone\"}".getBytes(StandardCharsets.UTF_8);
+                    try (OutputStream os = conn.getOutputStream()) {
+                        os.write(data);
+                    }
+                    conn.getResponseCode();
+                    conn.disconnect();
+                }
+            } catch (Exception ignored) {}
+        }).start();
     }
 
     private void handlePhoneEvent(JSONObject ev) {
@@ -429,61 +607,19 @@ public class MyNebulaService extends Service {
         } catch (Exception ignored) {}
     }
 
-    public static void syncContacts(Context context, String hostIp) {
-        if (hostIp == null || hostIp.isEmpty()) return;
-        new Thread(() -> {
-            try {
-                if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-                JSONArray arr = new JSONArray();
-                Cursor cursor = context.getContentResolver().query(
-                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                        new String[]{
-                                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                                ContactsContract.CommonDataKinds.Phone.NUMBER
-                        },
-                        null, null,
-                        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
-                );
-                if (cursor != null) {
-                    HashSet<String> seen = new HashSet<>();
-                    while (cursor.moveToNext() && arr.length() < 500) {
-                        String name = cursor.getString(0);
-                        String number = cursor.getString(1);
-                        if (name != null && number != null && !seen.contains(number)) {
-                            seen.add(number);
-                            JSONObject c = new JSONObject();
-                            c.put("name", name);
-                            c.put("phone", number);
-                            arr.put(c);
-                        }
-                    }
-                    cursor.close();
-                }
-
-                JSONObject payload = new JSONObject();
-                payload.put("contacts", arr);
-
-                URL url = new URL("http://" + hostIp + ":53317/api/contacts");
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/json");
-                conn.setDoOutput(true);
-                conn.setConnectTimeout(4000);
-                conn.setReadTimeout(4000);
-                byte[] out = payload.toString().getBytes(StandardCharsets.UTF_8);
-                try (OutputStream os = conn.getOutputStream()) {
-                    os.write(out);
-                }
-                conn.getResponseCode();
-                conn.disconnect();
-            } catch (Exception ignored) {}
-        }).start();
-    }
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null) {
+            String action = intent.getAction();
+            if (ACTION_DENY_MIRROR.equals(action)) {
+                NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                if (manager != null) {
+                    manager.cancel(MIRROR_PROMPT_NOTIF_ID);
+                }
+                sendMirrorDeniedToPc();
+                return START_STICKY;
+            }
+        }
         return START_STICKY;
     }
 

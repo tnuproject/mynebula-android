@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="adwaita_blue">#3584e4</color>
+    <color name="adwaita_blue_dark">#1c71d8</color>
+    <color name="adwaita_card_bg">#28282c</color>
+    <color name="adwaita_danger">#e01b24</color>
+    <color name="adwaita_dark_bg">#1e1e1e</color>
+    <color name="adwaita_header_bg">#242426</color>
+    <color name="adwaita_success">#33d17a</color>
+    <color name="adwaita_text">#ffffff</color>
+    <color name="adwaita_text_dim">#a0a0a0</color>
+    <string name="app_name">MyNebula</string>
+    <string name="cloud_title">Cloud Gallery</string>
+    <string name="pairing_title">Pair Device</string>
+    <string name="petaldrop_title">PetalDrop</string>
+    <style name="Theme.MyNebula" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/adwaita_blue</item>
+        <item name="colorPrimaryVariant">@color/adwaita_blue_dark</item>
+        <item name="colorOnPrimary">@color/adwaita_text</item>
+        <item name="android:statusBarColor">@color/adwaita_header_bg</item>
+        <item name="android:navigationBarColor">@color/adwaita_header_bg</item>
+        <item name="android:windowBackground">@color/adwaita_dark_bg</item>
+    </style>
+</resources>

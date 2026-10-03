@@ -1,0 +1,22 @@
+R_DEF: Internal format may change without notice
+local
+color adwaita_blue
+color adwaita_blue_dark
+color adwaita_card_bg
+color adwaita_danger
+color adwaita_dark_bg
+color adwaita_header_bg
+color adwaita_success
+color adwaita_text
+color adwaita_text_dim
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+id webview
+layout activity_main
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+string cloud_title
+string pairing_title
+string petaldrop_title
+style Theme.MyNebula

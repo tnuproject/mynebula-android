@@ -115,13 +115,64 @@ public class MainActivity extends AppCompatActivity {
         } else {
             webView.loadUrl("file:///android_asset/web/index.html");
         }
+        checkMirrorIntent(intent);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        checkMirrorIntent(intent);
+    }
+
+    private void checkMirrorIntent(Intent intent) {
+        if (intent != null && MyNebulaService.ACTION_ALLOW_MIRROR.equals(intent.getAction())) {
+            android.app.NotificationManager manager = (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (manager != null) manager.cancel(MyNebulaService.MIRROR_PROMPT_NOTIF_ID);
+
+            new android.app.AlertDialog.Builder(this)
+                    .setTitle("Allow Screen Sharing?")
+                    .setMessage("NebulaOS PC is requesting permission to view your screen.")
+                    .setPositiveButton("Allow", (d, w) -> {
+                        android.media.projection.MediaProjectionManager mpm =
+                                (android.media.projection.MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+                        if (mpm != null) {
+                            startActivityForResult(mpm.createScreenCaptureIntent(), SCREEN_CAPTURE_REQUEST);
+                        }
+                    })
+                    .setNegativeButton("Deny", (d, w) -> {
+                        notifyMirrorResponse(false);
+                    })
+                    .setCancelable(false)
+                    .show();
+        }
+    }
+
+    private void notifyMirrorResponse(boolean allowed) {
+        new Thread(() -> {
+            try {
+                SharedPreferences prefs = getSharedPreferences("mynebula_prefs", MODE_PRIVATE);
+                String hostIp = prefs.getString("last_seen_ip", null);
+                if (hostIp != null && !hostIp.isEmpty()) {
+                    java.net.URL url = new java.net.URL("http://" + hostIp + ":53317/api/mirror/response");
+                    java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setDoOutput(true);
+                    conn.setConnectTimeout(3000);
+                    conn.setRequestProperty("Content-Type", "application/json");
+                    byte[] data = ("{\"allowed\":" + allowed + "}").getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                    try (java.io.OutputStream os = conn.getOutputStream()) {
+                        os.write(data);
+                    }
+                    conn.getResponseCode();
+                    conn.disconnect();
+                }
+            } catch (Exception ignored) {}
+        }).start();
     }
 
     private void requestAppPermissions() {
         List<String> list = new ArrayList<>();
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            list.add(Manifest.permission.READ_CONTACTS);
-        }
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
             list.add(Manifest.permission.CALL_PHONE);
         }
@@ -239,11 +290,13 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     startService(mirrorIntent);
                 }
+                notifyMirrorResponse(true);
                 Toast.makeText(this, "Screen mirroring started", Toast.LENGTH_SHORT).show();
                 if (webView != null) {
                     webView.evaluateJavascript("if (typeof onScreenMirrorChanged === 'function') onScreenMirrorChanged(true);", null);
                 }
             } else {
+                notifyMirrorResponse(false);
                 Toast.makeText(this, "Screen mirroring cancelled", Toast.LENGTH_SHORT).show();
             }
         }
@@ -328,15 +381,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @JavascriptInterface
-        public void syncContacts() {
-            SharedPreferences prefs = getSharedPreferences("mynebula_prefs", MODE_PRIVATE);
-            String host = prefs.getString("last_seen_ip", null);
-            if (host != null && !host.isEmpty()) {
-                MyNebulaService.syncContacts(MainActivity.this, host);
-                showToast("Syncing contacts with NebulaOS...");
-            } else {
-                showToast("Connect to NebulaOS first");
-            }
+        public boolean isGallerySyncEnabled() {
+            return GallerySyncManager.isSyncEnabled(MainActivity.this);
+        }
+
+        @JavascriptInterface
+        public void setGallerySyncEnabled(boolean enabled) {
+            GallerySyncManager.setSyncEnabled(MainActivity.this, enabled);
+            showToast(enabled ? "Gallery sync enabled" : "Gallery sync disabled");
         }
 
         @JavascriptInterface

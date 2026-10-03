@@ -1,0 +1,273 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="org.nebulaos.mynebula"
+4    android:versionCode="1"
+5    android:versionName="1.0.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="34" />
+10
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:4:5-67
+11-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:4:22-64
+12    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+12-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:5:5-79
+12-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:5:22-76
+13    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+13-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:6:5-76
+13-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:6:22-73
+14    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+14-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:7:5-86
+14-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:7:22-83
+15    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+15-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:8:5-80
+15-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:8:22-77
+16    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+16-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:9:5-81
+16-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:9:22-78
+17    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+17-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:10:5-76
+17-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:10:22-73
+18    <uses-permission android:name="android.permission.CAMERA" />
+18-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:11:5-65
+18-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:11:22-62
+19    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+19-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:12:5-81
+19-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:12:22-78
+20    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+20-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:13:5-77
+20-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:13:22-74
+21    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+21-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:14:5-94
+21-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:14:22-91
+22    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+22-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:15:5-94
+22-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:15:22-91
+23    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+23-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:16:5-77
+23-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:16:22-74
+24    <uses-permission android:name="android.permission.WAKE_LOCK" />
+24-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:17:5-68
+24-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:17:22-65
+25    <uses-permission android:name="android.permission.CALL_PHONE" />
+25-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:18:5-69
+25-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:18:22-66
+26    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+26-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:19:5-75
+26-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:19:22-72
+27    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
+27-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:20:5-77
+27-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:20:22-74
+28    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+28-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:21:5-95
+28-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:21:22-92
+29
+30    <permission
+30-->[androidx.core:core:1.9.0] C:\Users\alezz\.gradle\caches\transforms-4\4f0719a93105555712dbabe0d765e4b1\transformed\core-1.9.0\AndroidManifest.xml:22:5-24:47
+31        android:name="org.nebulaos.mynebula.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+31-->[androidx.core:core:1.9.0] C:\Users\alezz\.gradle\caches\transforms-4\4f0719a93105555712dbabe0d765e4b1\transformed\core-1.9.0\AndroidManifest.xml:23:9-81
+32        android:protectionLevel="signature" />
+32-->[androidx.core:core:1.9.0] C:\Users\alezz\.gradle\caches\transforms-4\4f0719a93105555712dbabe0d765e4b1\transformed\core-1.9.0\AndroidManifest.xml:24:9-44
+33
+34    <uses-permission android:name="org.nebulaos.mynebula.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+34-->[androidx.core:core:1.9.0] C:\Users\alezz\.gradle\caches\transforms-4\4f0719a93105555712dbabe0d765e4b1\transformed\core-1.9.0\AndroidManifest.xml:26:5-97
+34-->[androidx.core:core:1.9.0] C:\Users\alezz\.gradle\caches\transforms-4\4f0719a93105555712dbabe0d765e4b1\transformed\core-1.9.0\AndroidManifest.xml:26:22-94
+35
+36    <application
+36-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:23:5-85:19
+37        android:allowBackup="true"
+37-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:24:9-35
+38        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+38-->[androidx.core:core:1.9.0] C:\Users\alezz\.gradle\caches\transforms-4\4f0719a93105555712dbabe0d765e4b1\transformed\core-1.9.0\AndroidManifest.xml:28:18-86
+39        android:debuggable="true"
+40        android:extractNativeLibs="false"
+41        android:icon="@mipmap/ic_launcher"
+41-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:25:9-43
+42        android:label="@string/app_name"
+42-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:26:9-41
+43        android:roundIcon="@mipmap/ic_launcher"
+43-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:27:9-48
+44        android:supportsRtl="true"
+44-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:28:9-35
+45        android:theme="@style/Theme.MyNebula"
+45-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:29:9-46
+46        android:usesCleartextTraffic="true" >
+46-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:30:9-44
+47        <service
+47-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:31:9-36:63
+48            android:name="org.nebulaos.mynebula.MyNebulaService"
+48-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:32:13-44
+49            android:enabled="true"
+49-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:33:13-35
+50            android:exported="false"
+50-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:34:13-37
+51            android:foregroundServiceType="connectedDevice"
+51-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:36:13-60
+52            android:stopWithTask="false" />
+52-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:35:13-41
+53        <service
+53-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:38:9-46:19
+54            android:name="org.nebulaos.mynebula.NebulaNotificationListener"
+54-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:39:13-55
+55            android:exported="true"
+55-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:41:13-36
+56            android:label="NebulaOS Notification Mirror"
+56-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:40:13-57
+57            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
+57-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:42:13-87
+58            <intent-filter>
+58-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:43:13-45:29
+59                <action android:name="android.service.notification.NotificationListenerService" />
+59-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:44:17-99
+59-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:44:25-96
+60            </intent-filter>
+61        </service>
+62        <service
+62-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:48:9-52:63
+63            android:name="org.nebulaos.mynebula.ScreenMirrorService"
+63-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:49:13-48
+64            android:enabled="true"
+64-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:50:13-35
+65            android:exported="false"
+65-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:51:13-37
+66            android:foregroundServiceType="mediaProjection" />
+66-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:52:13-60
+67
+68        <receiver
+68-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:54:9-64:20
+69            android:name="org.nebulaos.mynebula.BootReceiver"
+69-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:55:13-41
+70            android:enabled="true"
+70-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:56:13-35
+71            android:exported="true" >
+71-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:57:13-36
+72            <intent-filter>
+72-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:58:13-63:29
+73                <action android:name="android.intent.action.BOOT_COMPLETED" />
+73-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:59:17-79
+73-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:59:25-76
+74                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+74-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:60:17-84
+74-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:60:25-81
+75                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+75-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:61:17-82
+75-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:61:25-79
+76                <action android:name="org.nebulaos.mynebula.RESTART_SERVICE" />
+76-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:62:17-80
+76-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:62:25-77
+77            </intent-filter>
+78        </receiver>
+79
+80        <activity
+80-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:66:9-84:20
+81            android:name="org.nebulaos.mynebula.MainActivity"
+81-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:67:13-41
+82            android:configChanges="orientation|screenSize|keyboardHidden"
+82-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:69:13-74
+83            android:exported="true"
+83-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:68:13-36
+84            android:windowSoftInputMode="adjustResize" >
+84-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:70:13-55
+85            <intent-filter>
+85-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:71:13-74:29
+86                <action android:name="android.intent.action.MAIN" />
+86-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:72:17-69
+86-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:72:25-66
+87
+88                <category android:name="android.intent.category.LAUNCHER" />
+88-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:73:17-77
+88-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:73:27-74
+89            </intent-filter>
+90            <intent-filter>
+90-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:75:13-83:29
+91                <action android:name="android.intent.action.VIEW" />
+91-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:76:17-69
+91-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:76:25-66
+92
+93                <category android:name="android.intent.category.DEFAULT" />
+93-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:77:17-76
+93-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:77:27-73
+94                <category android:name="android.intent.category.BROWSABLE" />
+94-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:78:17-78
+94-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:78:27-75
+95
+96                <data
+96-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:79:17-82:46
+97                    android:pathPrefix="/"
+97-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:82:21-43
+98                    android:port="53317"
+98-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:81:21-41
+99                    android:scheme="http" />
+99-->D:\nebulaos\src\apps\mynebula-android\app\src\main\AndroidManifest.xml:80:21-42
+100            </intent-filter>
+101        </activity>
+102
+103        <provider
+103-->[androidx.emoji2:emoji2:1.2.0] C:\Users\alezz\.gradle\caches\transforms-4\be332c7917b61dfe9b0f9d0c6f79eac6\transformed\emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+104            android:name="androidx.startup.InitializationProvider"
+104-->[androidx.emoji2:emoji2:1.2.0] C:\Users\alezz\.gradle\caches\transforms-4\be332c7917b61dfe9b0f9d0c6f79eac6\transformed\emoji2-1.2.0\AndroidManifest.xml:25:13-67
+105            android:authorities="org.nebulaos.mynebula.androidx-startup"
+105-->[androidx.emoji2:emoji2:1.2.0] C:\Users\alezz\.gradle\caches\transforms-4\be332c7917b61dfe9b0f9d0c6f79eac6\transformed\emoji2-1.2.0\AndroidManifest.xml:26:13-68
+106            android:exported="false" >
+106-->[androidx.emoji2:emoji2:1.2.0] C:\Users\alezz\.gradle\caches\transforms-4\be332c7917b61dfe9b0f9d0c6f79eac6\transformed\emoji2-1.2.0\AndroidManifest.xml:27:13-37
+107            <meta-data
+107-->[androidx.emoji2:emoji2:1.2.0] C:\Users\alezz\.gradle\caches\transforms-4\be332c7917b61dfe9b0f9d0c6f79eac6\transformed\emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+108                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+108-->[androidx.emoji2:emoji2:1.2.0] C:\Users\alezz\.gradle\caches\transforms-4\be332c7917b61dfe9b0f9d0c6f79eac6\transformed\emoji2-1.2.0\AndroidManifest.xml:30:17-75
+109                android:value="androidx.startup" />
+109-->[androidx.emoji2:emoji2:1.2.0] C:\Users\alezz\.gradle\caches\transforms-4\be332c7917b61dfe9b0f9d0c6f79eac6\transformed\emoji2-1.2.0\AndroidManifest.xml:31:17-49
+110            <meta-data
+110-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\alezz\.gradle\caches\transforms-4\ebe3befd06dbc58c30bf7fa8f9e773eb\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:29:13-31:52
+111                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+111-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\alezz\.gradle\caches\transforms-4\ebe3befd06dbc58c30bf7fa8f9e773eb\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:30:17-78
+112                android:value="androidx.startup" />
+112-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\alezz\.gradle\caches\transforms-4\ebe3befd06dbc58c30bf7fa8f9e773eb\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:31:17-49
+113            <meta-data
+113-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
+114                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+114-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
+115                android:value="androidx.startup" />
+115-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+116        </provider>
+117
+118        <receiver
+118-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
+119            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+119-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
+120            android:directBootAware="false"
+120-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
+121            android:enabled="true"
+121-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
+122            android:exported="true"
+122-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
+123            android:permission="android.permission.DUMP" >
+123-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
+124            <intent-filter>
+124-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
+125                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+125-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
+125-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
+126            </intent-filter>
+127            <intent-filter>
+127-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
+128                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+128-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
+128-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
+129            </intent-filter>
+130            <intent-filter>
+130-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
+131                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+131-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
+131-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
+132            </intent-filter>
+133            <intent-filter>
+133-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
+134                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+134-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
+134-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\alezz\.gradle\caches\transforms-4\4e2814f7b610f68f4867a8b3d2881c3c\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
+135            </intent-filter>
+136        </receiver>
+137    </application>
+138
+139</manifest>
