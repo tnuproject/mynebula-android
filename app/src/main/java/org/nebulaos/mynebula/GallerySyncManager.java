@@ -247,21 +247,28 @@ public class GallerySyncManager {
         return false;
     }
 
+    private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
+
+    private static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
     private static String computeMd5(ContentResolver resolver, Uri uri) {
         try (InputStream is = resolver.openInputStream(uri)) {
             if (is == null) return null;
             MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] buf = new byte[16384];
+            byte[] buf = new byte[32768];
             int read;
             while ((read = is.read(buf)) != -1) {
                 md.update(buf, 0, read);
             }
-            byte[] digest = md.digest();
-            StringBuilder sb = new StringBuilder();
-            for (byte b : digest) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
+            return bytesToHex(md.digest());
         } catch (Exception e) {
             return null;
         }
@@ -271,11 +278,7 @@ public class GallerySyncManager {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] digest = md.digest(data);
-            StringBuilder sb = new StringBuilder();
-            for (byte b : digest) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
+            return bytesToHex(digest);
         } catch (Exception e) {
             return "";
         }

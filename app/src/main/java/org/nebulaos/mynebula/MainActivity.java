@@ -173,20 +173,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void requestAppPermissions() {
         List<String> list = new ArrayList<>();
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            list.add(Manifest.permission.CALL_PHONE);
-        }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            list.add(Manifest.permission.READ_PHONE_STATE);
-        }
         if (android.os.Build.VERSION.SDK_INT >= 33) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                list.add(Manifest.permission.READ_MEDIA_IMAGES);
+            }
             if (ContextCompat.checkSelfPermission(this, "android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
                 list.add("android.permission.POST_NOTIFICATIONS");
             }
-        }
-        if (android.os.Build.VERSION.SDK_INT >= 26) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ANSWER_PHONE_CALLS) != PackageManager.PERMISSION_GRANTED) {
-                list.add(Manifest.permission.ANSWER_PHONE_CALLS);
+        } else {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                list.add(Manifest.permission.READ_EXTERNAL_STORAGE);
             }
         }
         if (!list.isEmpty()) {
@@ -387,22 +383,19 @@ public class MainActivity extends AppCompatActivity {
 
         @JavascriptInterface
         public void setGallerySyncEnabled(boolean enabled) {
+            if (enabled) {
+                if (android.os.Build.VERSION.SDK_INT >= 33) {
+                    if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_MEDIA_IMAGES}, 1002);
+                    }
+                } else {
+                    if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1002);
+                    }
+                }
+            }
             GallerySyncManager.setSyncEnabled(MainActivity.this, enabled);
             showToast(enabled ? "Gallery sync enabled" : "Gallery sync disabled");
-        }
-
-        @JavascriptInterface
-        public void dialNumber(String number) {
-            if (number == null || number.isEmpty()) return;
-            try {
-                Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + Uri.encode(number)));
-                startActivity(callIntent);
-            } catch (Exception e) {
-                try {
-                    Intent dialIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + Uri.encode(number)));
-                    startActivity(dialIntent);
-                } catch (Exception ignored) {}
-            }
         }
 
         @JavascriptInterface

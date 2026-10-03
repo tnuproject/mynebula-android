@@ -19,12 +19,8 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
-import android.telecom.TelecomManager;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -103,7 +99,6 @@ public class MyNebulaService extends Service {
         startBeaconListener();
         startEventPoller();
         startPushHttpServer();
-        setupTelephonyListener();
     }
 
     private void createNotificationChannel() {
@@ -134,7 +129,7 @@ public class MyNebulaService extends Service {
         boolean isPaired = prefs.getBoolean("is_paired", false);
 
         String contentText = isPaired
-                ? "Connected to " + pairedHost + " • Ready for PetalDrop & Calls"
+                ? "Connected to " + pairedHost + " • Ready for PetalDrop & Sync"
                 : "Active and searching for NebulaOS devices";
 
         return new NotificationCompat.Builder(this, CHANNEL_ID)
@@ -407,28 +402,6 @@ public class MyNebulaService extends Service {
                 out.write("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 16\r\n\r\n{\"success\":true}".getBytes());
                 out.flush();
 
-            } else if (firstLine.contains("/dial")) {
-                String num = "";
-                try {
-                    JSONObject json = new JSONObject(new String(bodyBytes, StandardCharsets.UTF_8));
-                    num = json.optString("number", "");
-                } catch (Exception ignored) {}
-                if (!num.isEmpty()) {
-                    executeDial(num);
-                }
-                out.write("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 16\r\n\r\n{\"success\":true}".getBytes());
-                out.flush();
-
-            } else if (firstLine.contains("/accept")) {
-                executeAccept();
-                out.write("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 16\r\n\r\n{\"success\":true}".getBytes());
-                out.flush();
-
-            } else if (firstLine.contains("/hangup")) {
-                executeHangup();
-                out.write("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 16\r\n\r\n{\"success\":true}".getBytes());
-                out.flush();
-
             } else {
                 out.write("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 16\r\n\r\n{\"success\":true}".getBytes());
                 out.flush();
@@ -464,7 +437,7 @@ public class MyNebulaService extends Service {
                     .setContentText("NebulaOS PC is requesting to mirror your phone screen.")
                     .setSmallIcon(android.R.drawable.ic_menu_slideshow)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setCategory(NotificationCompat.CATEGORY_CALL)
+                    .setCategory(NotificationCompat.CATEGORY_STATUS)
                     .setAutoCancel(true)
                     .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Deny", denyPending)
                     .addAction(android.R.drawable.ic_media_play, "Allow", allowPending);
@@ -507,87 +480,7 @@ public class MyNebulaService extends Service {
     }
 
     private void handlePhoneEvent(JSONObject ev) {
-        String action = ev.optString("action", "");
-        if ("dial".equals(action)) {
-            String num = ev.optString("number", "");
-            if (!num.isEmpty()) {
-                executeDial(num);
-            }
-        } else if ("accept".equals(action)) {
-            executeAccept();
-        } else if ("hangup".equals(action)) {
-            executeHangup();
-        }
-    }
-
-    private void executeDial(String number) {
-        try {
-            Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + Uri.encode(number)));
-            callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(callIntent);
-        } catch (Exception e) {
-            try {
-                Intent dialIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + Uri.encode(number)));
-                dialIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(dialIntent);
-            } catch (Exception ignored) {}
-        }
-    }
-
-    private void executeAccept() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            try {
-                TelecomManager tm = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
-                if (tm != null && ContextCompat.checkSelfPermission(this, Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED) {
-                    tm.acceptRingingCall();
-                }
-            } catch (Exception ignored) {}
-        }
-    }
-
-    private void executeHangup() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            try {
-                TelecomManager tm = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
-                if (tm != null && ContextCompat.checkSelfPermission(this, Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED) {
-                    tm.endCall();
-                }
-            } catch (Exception ignored) {}
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    private void setupTelephonyListener() {
-        try {
-            TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-            if (tm == null) return;
-            tm.listen(new PhoneStateListener() {
-                @Override
-                public void onCallStateChanged(int state, String phoneNumber) {
-                    notifyDesktopCallState(state, phoneNumber);
-                }
-            }, PhoneStateListener.LISTEN_CALL_STATE);
-        } catch (Exception ignored) {}
-    }
-
-    private void notifyDesktopCallState(int state, String number) {
-        SharedPreferences prefs = getSharedPreferences("mynebula_prefs", MODE_PRIVATE);
-        boolean isPaired = prefs.getBoolean("is_paired", false);
-        String hostIp = prefs.getString("last_seen_ip", null);
-        if (!isPaired || hostIp == null || hostIp.isEmpty()) return;
-
-        new Thread(() -> {
-            try {
-                if (state == TelephonyManager.CALL_STATE_RINGING) {
-                    JSONObject payload = new JSONObject();
-                    payload.put("number", number != null && !number.isEmpty() ? number : "Incoming Call");
-                    payload.put("name", "Incoming Call");
-                    sendPost(hostIp, "/api/call/incoming", payload.toString());
-                } else if (state == TelephonyManager.CALL_STATE_IDLE) {
-                    sendPost(hostIp, "/api/call/hangup", "{}");
-                }
-            } catch (Exception ignored) {}
-        }).start();
+        // Reserved for non-call future events
     }
 
     private void sendPost(String hostIp, String path, String body) {
